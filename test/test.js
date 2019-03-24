@@ -1,143 +1,88 @@
-var gulp = require('gulp');
-var expect = require('chai').expect;
-var task = require('../');
-var es = require('event-stream');
-var path = require('path');
-var marked = require('swig-marked');
+import path from 'path';
+import test from 'ava';
+import vfs from 'vinyl-fs';
+import pEvent from 'p-event';
+import marked from 'swig-marked';
+import fn from '..';
 
-require('mocha');
+const filenameWithLayout = path.join(__dirname, './fixtures/test.html');
+const filenameWithoutLayout = path.join(__dirname, './fixtures/test2.html');
+const filenameWithoutJson = path.join(__dirname, './fixtures/test4.html');
+const filenameWithMarkdown = path.join(__dirname, './fixtures/test3.html');
+const filenameWithVarControls = path.join(__dirname, './fixtures/test5.html');
 
-describe('gulp-swig compilation', function() {
+async function macro(t, opts, filename, expected) {
+	const stream = fn(opts);
+	const promise = pEvent(stream, 'data');
 
-  'use strict';
+	vfs.src(filename)
+		.pipe(stream);
 
-  describe('gulp-swig', function() {
+	const file = await promise;
+	t.is(file.contents.toString(), expected);
+}
 
-    var filename_with_layout = path.join(__dirname, './fixtures/test.html');
-    var filename_without_layout = path.join(__dirname, './fixtures/test2.html');
-    var filename_without_json = path.join(__dirname, './fixtures/test4.html');
-    var filename_with_markdown = path.join(__dirname, './fixtures/test3.html');
-    var filename_with_varControls = path.join(__dirname, './fixtures/test5.html');
+const testParams = [
+	{
+		testname: 'should compile my swig files into HTML with data obj',
+		opts: {data: {message1: 'hello'}},
+		filename: filenameWithLayout,
+		result: '<div class="layout">hello</div>'
+	},
+	{
+		testname: 'should compile my swig files into HTML with json file',
+		opts: {loadJson: true},
+		filename: filenameWithLayout,
+		result: '<div class="layout">hello</div>'
+	},
+	{
+		testname: 'should continue without error if no json file was found when load_json is set to true',
+		opts: {loadJson: true},
+		filename: filenameWithoutJson,
+		result: 'world\n'
+	},
+	{
+		testname: 'should compile my swig files into HTML with both data obj and json file',
+		opts: {loadJson: true, data: {message2: 'world'}},
+		filename: filenameWithLayout,
+		result: '<div class="layout">helloworld</div>'
+	},
+	{
+		testname: 'should compile my swig files into HTML with json file from a defined path',
+		opts: {loadJson: true, jsonPath: path.join(__dirname, './fixtures/data/')},
+		filename: filenameWithLayout,
+		result: '<div class="layout">hello from data</div>'
+	},
+	{
+		testname: 'should set swig defaults',
+		opts: {defaults: {locals: {message1: 'Hello World'}}},
+		filename: filenameWithoutLayout,
+		result: 'Hello World'
+	},
+	{
+		testname: 'should compile my swig files into HTML with data callback',
+		opts: {data: file => ({message1: path.basename(file.path)})},
+		filename: filenameWithLayout,
+		result: '<div class="layout">test.html</div>'
+	},
+	{
+		testname: 'should compile markdown by defining a custom tag using opts.setup',
+		opts: {
+			setup: swig => {
+				marked.useTag(swig, 'markdown');
+			}
+		},
+		filename: filenameWithMarkdown,
+		result: '<p><strong>hello</strong><br>world</p>\n'
+	},
+	{
+		testname: 'should compile custom varControls',
+		opts: {varControls: ['{{@test', '}}'], data: {message1: 'Hello'}},
+		filename: filenameWithVarControls,
+		result: 'Hello\n'
+	}
+];
 
-    function expectStream(done, options) {
-      options = options || {};
-      return es.map(function(file) {
-        var result = String(file.contents);
-        var expected = options.expected;
-        expect(result).to.equal(expected);
-        done();
-      });
-    }
-
-    it('should compile my swig files into HTML with data obj', function(done) {
-      var opts = {
-        data: {
-          message1: 'hello'
-        },
-        expected: '<div class="layout">hello</div>'
-      };
-      gulp.src(filename_with_layout)
-        .pipe(task(opts))
-        .pipe(expectStream(done, opts));
-    });
-
-    it('should compile my swig files into HTML with json file', function(done) {
-      var opts = {
-        load_json: true,
-        expected: '<div class="layout">hello</div>'
-      };
-      gulp.src(filename_with_layout)
-        .pipe(task(opts))
-        .pipe(expectStream(done, opts));
-    });
-
-    it('should continue without error if no json file was found when load_json is set to true', function(done) {
-      var opts = {
-        load_json: true,
-        expected: 'world\n'
-      };
-      gulp.src(filename_without_json)
-        .pipe(task(opts))
-        .pipe(expectStream(done, opts));
-    });
-
-    it('should compile my swig files into HTML with both data obj and json file', function(done) {
-      var opts = {
-        load_json: true,
-        data: {
-          message2: "world"
-        },
-        expected: '<div class="layout">helloworld</div>'
-      };
-      gulp.src(filename_with_layout)
-        .pipe(task(opts))
-        .pipe(expectStream(done, opts));
-    });
-
-    it('should compile my swig files into HTML with json file from a defined path', function(done) {
-      var opts = {
-        load_json: true,
-        json_path: path.join(__dirname, './fixtures/data/'),
-        expected: '<div class="layout">hello from data</div>'
-      };
-      gulp.src(filename_with_layout)
-        .pipe(task(opts))
-        .pipe(expectStream(done, opts));
-    });
-
-    it('should set swig defaults', function(done) {
-      var opts = {
-        defaults: {
-          locals: {
-            message1: "Hello World"
-          }
-        },
-        expected: 'Hello World'
-      };
-      gulp.src(filename_without_layout)
-        .pipe(task(opts))
-        .pipe(expectStream(done, opts));
-    });
-
-    it('should compile my swig files into HTML with data callback', function(done) {
-      var opts = {
-        data: function(file) {
-          return {
-            message1: path.basename(file.path)
-          };
-        },
-        expected: '<div class="layout">test.html</div>'
-      };
-      gulp.src(filename_with_layout)
-        .pipe(task(opts))
-        .pipe(expectStream(done, opts));
-    });
-
-    it('should compile markdown by defining a custom tag using opts.setup', function(done) {
-      var opts = {
-        setup: function(swig) {
-          marked.useTag(swig, 'markdown');
-        },
-        expected: '<p><strong>hello</strong><br>world</p>\n'
-      };
-      gulp.src(filename_with_markdown)
-        .pipe(task(opts))
-        .pipe(expectStream(done, opts));
-    });
-
-    it('should compile custom varControls', function(done) {
-      var opts = {
-        varControls: ['{{@test', '}}'],
-        data:{
-          message1:'Hello'
-        },
-        expected: 'Hello\n'
-      };
-      gulp.src(filename_with_varControls)
-        .pipe(task(opts))
-        .pipe(expectStream(done, opts));
-    });
-
-  });
-
+testParams.forEach(({testname, opts, filename, result}) => {
+	test(testname, macro, opts, filename, result);
 });

@@ -1,30 +1,46 @@
 {
   "name": "gulp-swig",
   "version": "0.8.0",
+  "license": "MIT",
   "description": "Swig Plugin for Gulp",
   "keywords": [
     "gulpplugin",
     "swig"
   ],
-  "repository": "https://github.com/colynb/gulp-swig",
-  "author": "Colyn Brown <colyn.brown@gmail.com>",
-  "dependencies": {
-    "event-stream": "~3.0.15",
-    "clone": "~0.1.9",
-    "gulp-util": "~2.2.14",
-    "swig": "1.4.*",
-    "gulp": "~3.5.1"
+  "repository": "https://github.com/PolyPik/gulp-swig.git",
+  "author": {
+    "name": "Colyn Brown",
+    "email": "colyn.brown@gmail.com",
+    "url": "https://infrontlabs.com/"
   },
+  "contributors": [
+    {
+      "name": "Howard Li",
+      "email": "bighorn@pursuitofchallenge.com",
+      "url": "https://pursuitofchallenge.com"
+    }
+  ],
   "main": "index.js",
   "engines": {
-    "node": ">= 0.4.0"
+    "node": ">=6"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "xo && ava"
+  },
+  "dependencies": {
+    "plugin-error": "^1.0.1",
+    "replace-ext": "^1.0.0",
+    "swig-templates": "^2.0.3",
+    "through2": "^3.0.1"
+  },
+  "peerDependencies": {
+    "gulp": "^4.0.0"
   },
   "devDependencies": {
-    "mocha": "~1.12.0",
-    "chai": "~1.7.2",
-    "swig-marked": "~0.0.1"
+    "ava": "^1.3.1",
+    "p-event": "^4.0.0",
+    "swig-marked": "~0.0.1",
+    "vinyl-fs": "^3.0.3",
+    "xo": "^0.24.0"
   }
 }

@@ -1,79 +1,86 @@
-var es = require('event-stream');
-var swig = require('swig');
-var clone = require('clone');
-var gutil = require('gulp-util');
-var ext = gutil.replaceExtension;
-var PluginError = gutil.PluginError;
-var fs = require('fs');
-var path = require('path');
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const through = require('through2');
+const PluginError = require('plugin-error');
+const replaceExt = require('replace-ext');
+const swig = require('swig-templates');
 
-function extend(target) {
-  'use strict';
-  var sources = [].slice.call(arguments, 1);
-  sources.forEach(function(source) {
-    for (var prop in source) {
-      if (source.hasOwnProperty(prop)) {
-        target[prop] = source[prop];
-      }
-    }
-  });
-  return target;
-}
+module.exports = options => {
+	const {data: optData, defaults, loadJson, jsonPath, setup} = options;
 
-module.exports = function(options) {
-  'use strict';
+	const swigOptNames = [
+		'autoescape',
+		'varControls',
+		'tagControls',
+		'cmtControls',
+		'locals',
+		'cache',
+		'loader'
+	];
 
-  var opts = options ? clone(options) : {};
-  opts.ext = opts.ext || ".html";
+	const swigOpts = {};
 
-  if (opts.defaults) {
-    swig.setDefaults(opts.defaults);
-  }
+	swigOptNames.forEach(name => {
+		if (options[name] !== undefined) {
+			swigOpts[name] = options[name];
+		}
+	});
 
-  if (opts.setup && typeof opts.setup === 'function') {
-    opts.setup(swig);
-  }
+	if (defaults) {
+		swig.setDefaults(defaults);
+	}
 
-  function gulpswig(file, callback) {
+	if (setup && typeof setup === 'function') {
+		setup(swig);
+	}
 
-    var data = opts.data || {}, jsonPath;
+	return through.obj(function (file, enc, cb) {
+		if (file.isNull()) {
+			cb(null, file);
+			return;
+		}
 
-    if (typeof data === 'function') {
-      data = data(file);
-    }
+		if (file.isStream()) {
+			cb(new PluginError('gulp-swig', 'Streaming not supported'));
+			return;
+		}
 
-    if (file.data) {
-      data = extend(file.data, data);
-    }
+		let data = optData || {};
+		let finalJsonPath = null;
 
-    if (opts.load_json === true) {
-      if (opts.json_path) {
-        jsonPath = path.join(opts.json_path, ext(path.basename(file.path), '.json'));
-      } else {
-        jsonPath = ext(file.path, '.json');
-      }
+		if (file.data) {
+			data = Object.assign(data, file.data);
+		}
 
-      // skip error if json file doesn't exist
-      try {
-        data = extend(JSON.parse(fs.readFileSync(jsonPath)), data);
-      } catch (err) {}
-    }
+		if (typeof data === 'function') {
+			data = data(file);
+		}
 
-    try {
+		if (loadJson === true) {
+			if (jsonPath) {
+				finalJsonPath = path.join(
+					jsonPath,
+					replaceExt(path.basename(file.path), '.json')
+				);
+			} else {
+				finalJsonPath = replaceExt(file.path, '.json');
+			}
 
-      var _swig = opts.varControls ? new swig.Swig(opts) : swig;
-      var tpl = _swig.compile(String(file.contents), {filename: file.path});
-      var compiled = tpl(data);
+			// Skip error if json file doesn't exist
+			try {
+				data = Object.assign(data, JSON.parse(fs.readFileSync(finalJsonPath)));
+			} catch (error) {}
+		}
 
-      file.path = ext(file.path, opts.ext);
-      file.contents = new Buffer(compiled);
+		try {
+			const render = swig.compileFile(file.path, swigOpts)(data);
+			file.contents = Buffer.from(render);
+			this.push(file);
+		} catch (error) {
+			this.emit('error', new PluginError('gulp-swig', error));
+		}
 
-      callback(null, file);
-    } catch (err) {
-      callback(new PluginError('gulp-swig', err));
-      callback();
-    }
-  }
-
-  return es.map(gulpswig);
+		cb();
+	});
 };
