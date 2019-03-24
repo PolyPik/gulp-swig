@@ -1,33 +1,14 @@
-## Information
-
-<table>
-<tr>
-<td>Package</td><td>gulp-swig</td>
-</tr>
-<tr>
-<td>Description</td>
-<td>Compile Swig templates</td>
-</tr>
-<tr>
-<td>Node Version</td>
-<td>≥ 0.8</td>
-</tr>
-<tr>
-<td>Swig Version</td>
-<td>1.4.*</td>
-</tr>
-</table>
-
-[![Build Status](https://travis-ci.org/colynb/gulp-swig.png?branch=master)](https://travis-ci.org/colynb/gulp-swig)
-[![Dependencies](https://david-dm.org/colynb/gulp-swig.png)](https://david-dm.org/colynb/gulp-swig)
+## gulp-swig
+[![Build Status](https://travis-ci.org/PolyPik/gulp-swig.svg?branch=master)](https://travis-ci.org/PolyPik/gulp-swig)
+[![dependencies Status](https://david-dm.org/PolyPik/gulp-swig/status.svg)](https://david-dm.org/PolyPik/gulp-swig)
 
 [![NPM](https://nodei.co/npm/gulp-swig.png?stars&downloads)](https://npmjs.org/package/gulp-swig)
 
 [Learn more about gulp.js, the streaming build system](http://gulpjs.com)
 
-[Learn more about templating with Swig](http://paularmstrong.github.io/swig/)
+[Learn more about templating with Swig](http://node-swig.github.io/swig-templates/)
 
-## Install with NPM
+## Installation
 
 ```
 $ npm install --save-dev gulp-swig
@@ -181,30 +162,3 @@ gulp.task('templates', function() {
     .pipe(gulp.dest('./dist/'))
 });
 ```
-
-
-
-## LICENSE
-
-(MIT License)
-
-Copyright (c) 2013 Colyn Brown
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
