@@ -7,25 +7,7 @@ const replaceExt = require('replace-ext');
 const swig = require('swig-templates');
 
 module.exports = options => {
-	const {data: optData, defaults, loadJson, jsonPath, setup} = options;
-
-	const swigOptNames = [
-		'autoescape',
-		'varControls',
-		'tagControls',
-		'cmtControls',
-		'locals',
-		'cache',
-		'loader'
-	];
-
-	const swigOpts = {};
-
-	swigOptNames.forEach(name => {
-		if (options[name] !== undefined) {
-			swigOpts[name] = options[name];
-		}
-	});
+	const {data: optData, defaults, loadJson, jsonPath, setup, ...swigOpts} = options;
 
 	if (defaults) {
 		swig.setDefaults(defaults);
