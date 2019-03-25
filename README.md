@@ -85,7 +85,7 @@ If you've created a template called ```homepage.html``` you can create a JSON fi
 ```javascript
 var swig = require('gulp-swig');
 var opts = {
-  load_json: true
+  loadJson: true
 };
 gulp.task('templates', function() {
   gulp.src('./lib/*.html')
@@ -99,7 +99,7 @@ Inject variables from both a data object and JSON file into templates
 ```javascript
 var swig = require('gulp-swig');
 var opts = {
-  load_json: true,
+  loadJson: true,
   data: {
     headline: "Welcome"
   }
@@ -116,8 +116,8 @@ By default, gulp-swig will look for the json data file in the same location as t
 ```javascript
 var swig = require('gulp-swig');
 var opts = {
-  load_json: true,
-  json_path: './data/',
+  loadJson: true,
+  jsonPath: './data/',
   data: {
     headline: "Welcome"
   }
