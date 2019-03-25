@@ -3,6 +3,7 @@ import test from 'ava';
 import vfs from 'vinyl-fs';
 import pEvent from 'p-event';
 import marked from 'swig-marked';
+import swig from 'swig-templates';
 import fn from '..';
 
 const filenameWithLayout = path.join(__dirname, './fixtures/test.html');
@@ -21,6 +22,11 @@ async function macro(t, opts, filename, expected) {
 	const file = await promise;
 	t.is(file.contents.toString(), expected);
 }
+
+test.afterEach.cb(t => {
+	swig.setDefaults({});
+	setTimeout(t.end);
+});
 
 const testParams = [
 	{
@@ -54,12 +60,6 @@ const testParams = [
 		result: '<div class="layout">hello from data</div>'
 	},
 	{
-		testname: 'should set swig defaults',
-		opts: {defaults: {locals: {message1: 'Hello World'}}},
-		filename: filenameWithoutLayout,
-		result: 'Hello World'
-	},
-	{
 		testname: 'should compile my swig files into HTML with data callback',
 		opts: {data: file => ({message1: path.basename(file.path)})},
 		filename: filenameWithLayout,
@@ -82,6 +82,25 @@ const testParams = [
 		result: 'Hello\n'
 	}
 ];
+
+test.serial('should compile without specifying any options', async t => {
+	const stream = fn();
+	const promise = pEvent(stream, 'data');
+
+	vfs.src(filenameWithLayout)
+		.pipe(stream);
+
+	const file = await promise;
+	t.is(file.contents.toString(), '<div class="layout"></div>');
+});
+
+test.serial(
+	'should set swig defaults',
+	macro,
+	{defaults: {locals: {message1: 'Hello World'}}},
+	filenameWithoutLayout,
+	'Hello World'
+);
 
 testParams.forEach(({testname, opts, filename, result}) => {
 	test(testname, macro, opts, filename, result);
