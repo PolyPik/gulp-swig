@@ -13,7 +13,7 @@ const filenameWithMarkdown = path.join(__dirname, './fixtures/test3.html');
 const filenameWithVarControls = path.join(__dirname, './fixtures/test5.html');
 
 async function macro(t, opts, filename, expected) {
-	const stream = fn(opts);
+	const stream = opts ? fn(opts) : fn();
 	const promise = pEvent(stream, 'data');
 
 	vfs.src(filename)
@@ -83,16 +83,13 @@ const testParams = [
 	}
 ];
 
-test.serial('should compile without specifying any options', async t => {
-	const stream = fn();
-	const promise = pEvent(stream, 'data');
-
-	vfs.src(filenameWithLayout)
-		.pipe(stream);
-
-	const file = await promise;
-	t.is(file.contents.toString(), '<div class="layout"></div>');
-});
+test.serial(
+	'should compile without specifying any options',
+	macro,
+	null,
+	filenameWithLayout,
+	'<div class="layout"></div>'
+);
 
 test.serial(
 	'should set swig defaults',
