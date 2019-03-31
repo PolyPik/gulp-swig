@@ -1,7 +1,8 @@
 ## gulp-swig
 [![Build Status](https://travis-ci.org/PolyPik/gulp-swig.svg?branch=master)](https://travis-ci.org/PolyPik/gulp-swig)
-[![dependencies Status](https://david-dm.org/PolyPik/gulp-swig/status.svg)](https://david-dm.org/PolyPik/gulp-swig)
+[![Dependencies Status](https://david-dm.org/PolyPik/gulp-swig/status.svg)](https://david-dm.org/PolyPik/gulp-swig)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=PolyPik/gulp-swig)](https://dependabot.com)
+[![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/xojs/xo)
 
 [![NPM](https://nodei.co/npm/gulp-swig.png?stars&downloads)](https://npmjs.org/package/gulp-swig)
 
