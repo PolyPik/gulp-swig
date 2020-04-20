@@ -37,7 +37,7 @@
     "gulp": "^4.0.0"
   },
   "devDependencies": {
-    "ava": "^1.4.1",
+    "ava": "^3.7.1",
     "p-event": "^4.0.0",
     "swig-marked": "~0.0.1",
     "vinyl-fs": "^3.0.3",
